@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const initialForm = {
   id: null,
@@ -36,16 +36,16 @@ export default function Home() {
     return ['All', ...Array.from(new Set(found))];
   }, [tasks]);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [filters]);
-
-  async function fetchTasks() {
+  const fetchTasks = useCallback(async () => {
     const query = new URLSearchParams(filters);
     const response = await fetch(`/api/tasks?${query.toString()}`);
     const result = await response.json();
     setTasks(result.tasks || []);
-  }
+  }, [filters]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   function resetForm() {
     setForm(initialForm);
@@ -65,7 +65,7 @@ export default function Home() {
     if (response.ok) {
       setMessage(isEditing ? 'Task updated.' : 'Task created.');
       resetForm();
-      fetchTasks();
+      await fetchTasks();
     } else {
       setMessage(result.error || 'Could not save task.');
     }
@@ -77,7 +77,7 @@ export default function Home() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
     });
-    fetchTasks();
+    await fetchTasks();
   }
 
   function handleEdit(task) {
