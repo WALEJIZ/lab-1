@@ -5,7 +5,7 @@ function parseQueryValue(value) {
   return value;
 }
 
-function validateTask(body) {
+function validateTask(body = {}) {
   const { title, dueDate, topic, status } = body;
   if (!title || !dueDate || !topic || !status) {
     return 'Title, due date, topic, and status are required';
@@ -16,7 +16,7 @@ function validateTask(body) {
   return null;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const { status, topic, archived, sort } = req.query;
@@ -56,4 +56,7 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-};
+}
+
+export default handler;
+module.exports = handler;
